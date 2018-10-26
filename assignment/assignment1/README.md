@@ -19,6 +19,6 @@ bash get_datasets.sh
 jupyter notebook
 ```
 
-3. 完成 `knn.ipynb` 和 `cs231n/classifier/k_nearest_neighbor.py` 中的 `TODO`
+3. 完成 `knn.ipynb` 2018.10.26
 
-4. 完成 
+4. 完成 `svm.ipynb`
