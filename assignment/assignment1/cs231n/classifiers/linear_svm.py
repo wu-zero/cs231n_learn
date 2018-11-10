@@ -35,12 +35,21 @@ def svm_loss_naive(W, X, y, reg):
       if margin > 0:
         loss += margin
 
+        # 如果margin大于0，求梯度
+        dW[:,j] += X[i]
+        dW[:,y[i]] += -X[i]
+
+
   # Right now the loss is a sum over all training examples, but we want it
   # to be an average instead so we divide by num_train.
   loss /= num_train
+  # 对梯度除以num_train
+  dW /= num_train
 
   # Add regularization to the loss.
   loss += reg * np.sum(W * W)
+  # 对正则项求梯度
+  dW += 2*reg*W
 
   #############################################################################
   # TODO:                                                                     #
@@ -69,12 +78,17 @@ def svm_loss_vectorized(W, X, y, reg):
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in loss.                                                           #
   #############################################################################
-  pass
+  num_train = X.shape[0]
+  scores = np.dot(X,W)
+  y_scores = scores[np.arange(num_train),y].reshape((-1,1))  # 得到样本label对应的得分 # 学到一种新的索引方法
+  mask = (scores - y_scores + 1) > 0
+  scores = (scores - y_scores + 1) * mask  # 有效得分
+  loss = (np.sum(scores) - num_train *1)/num_train  # 去掉label处的得分，求平均
+  loss += reg * np.sum(W * W)  # 正则化
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-
-
   #############################################################################
   # TODO:                                                                     #
   # Implement a vectorized version of the gradient for the structured SVM     #
@@ -84,7 +98,14 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pass
+
+  ds = np.ones_like(scores)  # 初始化ds
+  ds *= mask
+  ds[np.arange(num_train),y] = -1 * (np.sum(mask, axis=1) - 1)
+  dW = np.dot(X.T, ds) / num_train
+  dW += 2 * reg * W
+
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
